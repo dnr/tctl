@@ -229,6 +229,8 @@ var (
 	FlagPort                          = "port"
 	FlagEnableConnection              = "enable-connection"
 	FlagFollowAlias                   = []string{"f"}
+	FlagScheduleID                    = "schedule-id"
+	FlagScheduleIDAlias               = []string{"sid"}
 
 	FlagProtoType  = "type"
 	FlagHexData    = "hex-data"
