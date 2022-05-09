@@ -25,29 +25,158 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
+	"time"
 
-	// schedpb "go.temporal.io/api/schedule/v1"
+	enumspb "go.temporal.io/api/enums/v1"
+	schedpb "go.temporal.io/api/schedule/v1"
 
+	"github.com/pborman/uuid"
 	"github.com/urfave/cli/v2"
 	"go.temporal.io/api/workflowservice/v1"
 )
 
-// CreateSchedule
-func CreateSchedule(c *cli.Context) error {
-	return nil
-}
-
-// DescribeSchedule
-func DescribeSchedule(c *cli.Context) error {
+func scheduleBaseArgs(c *cli.Context) (
+	frontendClient workflowservice.WorkflowServiceClient,
+	namespace string,
+	scheduleID string,
+	err error,
+) {
 	frontendClient := cFactory.FrontendClient(c)
 	namespace, err := getRequiredGlobalOption(c, FlagNamespace)
 	if err != nil {
+		return nil, "", "", err
+	}
+	scheduleID := c.String(FlagScheduleID)
+	if scheduleID == "" {
+		return nil, "", "", errors.New("empty schedule id")
+	}
+	return frontendClient, namespace, scheduleID, nil
+}
+
+func CreateSchedule(c *cli.Context) error {
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
 		return err
 	}
+	ctx, cancel := newContext(c)
+	defer cancel()
 
-	scheduleID := c.String(FlagScheduleID)
+	return nil
+}
 
+func UpdateSchedule(c *cli.Context) error {
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := newContext(c)
+	defer cancel()
+
+	return nil
+}
+
+func PauseSchedule(c *cli.Context) error {
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := newContext(c)
+	defer cancel()
+
+	req := &workflowservice.PatchScheduleRequest{
+		Namespace:  namespace,
+		ScheduleId: scheduleID,
+		Patch: &schedpb.SchedulePatch{
+			// TODO: get from flag
+			Pause: true,
+		},
+		Identity:  getCliIdentity(),
+		RequestId: uuid.New(),
+	}
+	resp, err := frontendClient.PatchSchedule(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to pause schedule.\n%s", err)
+	}
+
+	// TODO: make prettier
+	prettyPrintJSONObject(resp)
+
+	return nil
+}
+
+func TriggerSchedule(c *cli.Context) error {
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := newContext(c)
+	defer cancel()
+
+	req := &workflowservice.PatchScheduleRequest{
+		Namespace:  namespace,
+		ScheduleId: scheduleID,
+		Patch: &schedpb.SchedulePatch{
+			TriggerImmediately: &schedpb.TriggerImmediatelyRequest{
+				// TODO: get from flag
+				OverlapPolicy: enumspb.SCHEDULE_OVERLAP_POLICY_UNSPECIFIED,
+			},
+		},
+		Identity:  getCliIdentity(),
+		RequestId: uuid.New(),
+	}
+	resp, err := frontendClient.PatchSchedule(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to trigger schedule.\n%s", err)
+	}
+
+	// TODO: make prettier
+	prettyPrintJSONObject(resp)
+
+	return nil
+}
+
+func BackfillSchedule(c *cli.Context) error {
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := newContext(c)
+	defer cancel()
+
+	req := &workflowservice.PatchScheduleRequest{
+		Namespace:  namespace,
+		ScheduleId: scheduleID,
+		Patch: &schedpb.SchedulePatch{
+			BackfillRequest: []*schedpb.BackfillRequest{
+				&schedpb.BackfillRequest{
+					// TODO: Get these from flags
+					StartTime:     &time.Time{},
+					EndTime:       &time.Time{},
+					OverlapPolicy: enumspb.SCHEDULE_OVERLAP_POLICY_UNSPECIFIED,
+				},
+			},
+		},
+		Identity:  getCliIdentity(),
+		RequestId: uuid.New(),
+	}
+	resp, err := frontendClient.PatchSchedule(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to backfill schedule.\n%s", err)
+	}
+
+	// TODO: make prettier
+	prettyPrintJSONObject(resp)
+
+	return nil
+}
+
+func DescribeSchedule(c *cli.Context) error {
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
+		return err
+	}
 	ctx, cancel := newContext(c)
 	defer cancel()
 
@@ -58,6 +187,30 @@ func DescribeSchedule(c *cli.Context) error {
 	resp, err := frontendClient.DescribeSchedule(ctx, req)
 	if err != nil {
 		return fmt.Errorf("failed to describe schedule.\n%s", err)
+	}
+
+	// TODO: make prettier
+	prettyPrintJSONObject(resp)
+
+	return nil
+}
+
+func DeleteSchedule(c *cli.Context) error {
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := newContext(c)
+	defer cancel()
+
+	req := &workflowservice.DeleteScheduleRequest{
+		Namespace:  namespace,
+		ScheduleId: scheduleID,
+		Identity:   getCliIdentity(),
+	}
+	resp, err := frontendClient.DeleteSchedule(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to delete schedule.\n%s", err)
 	}
 
 	// TODO: make prettier

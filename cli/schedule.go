@@ -30,34 +30,73 @@ import (
 )
 
 func newScheduleCommands() []*cli.Command {
+	sid := &cli.StringFlag{
+		Name:     FlagScheduleID,
+		Aliases:  FlagScheduleIDAlias,
+		Usage:    "Schedule id",
+		Required: true,
+	}
+
 	return []*cli.Command{
 		{
 			Name:    "create",
 			Aliases: []string{"c"},
 			Usage:   "Create a new schedule",
 			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     FlagScheduleID,
-					Aliases:  FlagScheduleIDAlias,
-					Usage:    "Schedule id",
-					Required: true,
-				},
+				sid,
 			},
 			Action: CreateSchedule,
+		},
+		{
+			Name:    "update",
+			Aliases: []string{"up"},
+			Usage:   "Updates a schedule with a new definition",
+			Flags: []cli.Flag{
+				sid,
+			},
+			Action: UpdateSchedule,
+		},
+		{
+			Name:  "pause",
+			Usage: "Pauses or unpauses a schedule",
+			Flags: []cli.Flag{
+				sid,
+			},
+			Action: PauseSchedule,
+		},
+		{
+			Name:  "trigger",
+			Usage: "Triggers an immediate action",
+			Flags: []cli.Flag{
+				sid,
+			},
+			Action: TriggerSchedule,
+		},
+		{
+			Name:  "backfill",
+			Usage: "Backfills a past time range of actions",
+			Flags: []cli.Flag{
+				sid,
+			},
+			Action: BackfillSchedule,
 		},
 		{
 			Name:    "describe",
 			Aliases: []string{"d"},
 			Usage:   "Get schedule configuration and current state",
 			Flags: append([]cli.Flag{
-				&cli.StringFlag{
-					Name:     FlagScheduleID,
-					Aliases:  FlagScheduleIDAlias,
-					Usage:    "Schedule id",
-					Required: true,
-				},
+				sid,
 			}, flags.FlagsForRendering...),
 			Action: DescribeSchedule,
+		},
+		{
+			Name:    "delete",
+			Aliases: []string{"rm"},
+			Usage:   "Deletes a schedule",
+			Flags: []cli.Flag{
+				sid,
+			},
+			Action: DeleteSchedule,
 		},
 	}
 }
