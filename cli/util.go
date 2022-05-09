@@ -29,6 +29,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/user"
 	"regexp"
 	"strconv"
 	"strings"
@@ -523,9 +524,13 @@ func strToTaskQueueType(str string) enumspb.TaskQueueType {
 func getCliIdentity() string {
 	hostName, err := os.Hostname()
 	if err != nil {
-		hostName = "UnKnown"
+		hostName = "Unknown"
 	}
-	return fmt.Sprintf("tctl@%s", hostName)
+	userName := "unknown"
+	if u, err := user.Current(); err == nil {
+		userName = u.Username
+	}
+	return fmt.Sprintf("tctl:%s@%s", userName, hostName)
 }
 
 func newContext(c *cli.Context) (context.Context, context.CancelFunc) {
