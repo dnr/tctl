@@ -24,8 +24,8 @@ endef
 build:
 	@printf $(COLOR) "Build tctl with OS: $(GOOS), ARCH: $(GOARCH)..."
 	CGO_ENABLED=0 go build ./cmd/tctl
-	@printf $(COLOR) "Build tctl-authorization-plugin with OS: $(GOOS), ARCH: $(GOARCH)..."
-	CGO_ENABLED=$(CGO_ENABLED) go build ./cmd/plugins/tctl-authorization-plugin
+	#@printf $(COLOR) "Build tctl-authorization-plugin with OS: $(GOOS), ARCH: $(GOARCH)..."
+	#CGO_ENABLED=$(CGO_ENABLED) go build ./cmd/plugins/tctl-authorization-plugin
 
 clean:
 	@printf $(COLOR) "Clearing binaries..."
