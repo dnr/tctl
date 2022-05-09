@@ -145,6 +145,7 @@ func newScheduleCommands() []*cli.Command {
 					Name:    FlagReason,
 					Aliases: FlagReasonAlias,
 					Usage:   "Free-form text to describe reason for pause/unpause",
+					Value:   "(no reason provided)",
 				},
 			},
 			Action: ToggleSchedule,

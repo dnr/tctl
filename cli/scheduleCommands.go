@@ -261,12 +261,48 @@ func CreateSchedule(c *cli.Context) error {
 }
 
 func UpdateSchedule(c *cli.Context) error {
-	// frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
-	// if err != nil {
-	// 	return err
-	// }
-	// ctx, cancel := newContext(c)
-	// defer cancel()
+	// TODO: merge with create
+
+	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := newContext(c)
+	defer cancel()
+
+	sched := &schedpb.Schedule{}
+	if sched.Spec, err = buildScheduleSpec(c); err != nil {
+		return err
+	}
+	if sched.Action, err = buildScheduleAction(c); err != nil {
+		return err
+	}
+	if sched.Policies, err = buildSchedulePolicies(c); err != nil {
+		return err
+	}
+	if sched.State, err = buildScheduleState(c); err != nil {
+		return err
+	}
+
+	// TODO: memo and search attributes for schedule itself
+
+	req := &workflowservice.UpdateScheduleRequest{
+		Namespace:  namespace,
+		ScheduleId: scheduleID,
+		Schedule:   sched,
+		Identity:   getCliIdentity(),
+		RequestId:  uuid.New(),
+	}
+
+	resp, err := frontendClient.UpdateSchedule(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to create schedule.\n%s", err)
+	}
+
+	// TODO: make prettier
+	prettyPrintJSONObject(resp)
+
+	return nil
 
 	return nil
 }
