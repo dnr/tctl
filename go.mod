@@ -20,6 +20,7 @@ require (
 	go.temporal.io/api v1.7.1-0.20220429205751-8a73b1f896d0
 	go.temporal.io/sdk v1.14.1-0.20220503143303-7c3777acd583
 	go.temporal.io/server v1.16.1-0.20220430070347-6035304061a4
+	golang.org/x/exp v0.0.0-20220428152302-39d4317da171
 	google.golang.org/grpc v1.46.0
 )
 
