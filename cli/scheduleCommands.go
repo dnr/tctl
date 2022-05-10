@@ -217,6 +217,24 @@ func buildSchedulePolicies(c *cli.Context) (*schedpb.SchedulePolicies, error) {
 	return &out, nil
 }
 
+func buildSchedule(c *cli.Context) (*schedpb.Schedule, error) {
+	sched := &schedpb.Schedule{}
+	var err error
+	if sched.Spec, err = buildScheduleSpec(c); err != nil {
+		return nil, err
+	}
+	if sched.Action, err = buildScheduleAction(c); err != nil {
+		return nil, err
+	}
+	if sched.Policies, err = buildSchedulePolicies(c); err != nil {
+		return nil, err
+	}
+	if sched.State, err = buildScheduleState(c); err != nil {
+		return nil, err
+	}
+	return sched, nil
+}
+
 func CreateSchedule(c *cli.Context) error {
 	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
 	if err != nil {
@@ -225,17 +243,8 @@ func CreateSchedule(c *cli.Context) error {
 	ctx, cancel := newContext(c)
 	defer cancel()
 
-	sched := &schedpb.Schedule{}
-	if sched.Spec, err = buildScheduleSpec(c); err != nil {
-		return err
-	}
-	if sched.Action, err = buildScheduleAction(c); err != nil {
-		return err
-	}
-	if sched.Policies, err = buildSchedulePolicies(c); err != nil {
-		return err
-	}
-	if sched.State, err = buildScheduleState(c); err != nil {
+	sched, err := buildSchedule(c)
+	if err != nil {
 		return err
 	}
 
@@ -261,8 +270,6 @@ func CreateSchedule(c *cli.Context) error {
 }
 
 func UpdateSchedule(c *cli.Context) error {
-	// TODO: merge with create
-
 	frontendClient, namespace, scheduleID, err := scheduleBaseArgs(c)
 	if err != nil {
 		return err
@@ -270,17 +277,8 @@ func UpdateSchedule(c *cli.Context) error {
 	ctx, cancel := newContext(c)
 	defer cancel()
 
-	sched := &schedpb.Schedule{}
-	if sched.Spec, err = buildScheduleSpec(c); err != nil {
-		return err
-	}
-	if sched.Action, err = buildScheduleAction(c); err != nil {
-		return err
-	}
-	if sched.Policies, err = buildSchedulePolicies(c); err != nil {
-		return err
-	}
-	if sched.State, err = buildScheduleState(c); err != nil {
+	sched, err := buildSchedule(c)
+	if err != nil {
 		return err
 	}
 
