@@ -48,7 +48,7 @@ func newScheduleCommands() []*cli.Command {
 		&cli.StringSliceFlag{
 			Name:    "calendar",
 			Aliases: []string{"cal"},
-			Usage:   `Calendar specification in JSON, e.g. {"DayOfWeek":"Fri","Hour":"17","Minute":"5"}`,
+			Usage:   `Calendar specification in JSON, e.g. {"day_of_week":"Fri","hour":"17","minute":"5"}`,
 		},
 		&cli.StringSliceFlag{
 			Name:    "interval",
