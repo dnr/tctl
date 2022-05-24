@@ -473,3 +473,26 @@ func DeleteSchedule(c *cli.Context) error {
 
 	return nil
 }
+
+func ListSchedules(c *cli.Context) error {
+	frontendClient := cFactory.FrontendClient(c)
+	namespace, err := getRequiredGlobalOption(c, FlagNamespace)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := newContext(c)
+	defer cancel()
+
+	req := &workflowservice.ListSchedulesRequest{
+		Namespace: namespace,
+	}
+	resp, err := frontendClient.ListSchedules(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to list schedules.\n%s", err)
+	}
+
+	// TODO: make prettier
+	prettyPrintJSONObject(resp)
+
+	return nil
+}

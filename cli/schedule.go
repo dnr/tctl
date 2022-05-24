@@ -196,6 +196,12 @@ func newScheduleCommands() []*cli.Command {
 			},
 			Action: DeleteSchedule,
 		},
+		{
+			Name:    "list",
+			Aliases: []string{"ls"},
+			Usage:   "Lists schedules",
+			Action:  ListSchedules,
+		},
 	}
 }
 
